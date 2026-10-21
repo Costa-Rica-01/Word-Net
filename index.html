@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Microsoft Word 2000 - Funcional</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#008080;font-family:Tahoma, sans-serif;font-size:11px;user-select:none;overflow:hidden}
+.window{width:98vw;height:97vh;margin:1vh auto;background:#c0c0c0;border:2px solid #000;box-shadow:4px 4px 0 #000;display:flex;flex-direction:column}
+.titlebar{background:linear-gradient(90deg,#000080,#0000cd);color:white;padding:3px 4px;display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:12px}
+.titlebar .buttons{display:flex;gap:2px}
+.titlebar .buttons div{width:16px;height:14px;background:#c0c0c0;border:1px outset #fff;color:black;display:grid;place-items:center;font-size:10px;cursor:pointer}
+.menu{background:#c0c0c0;border-bottom:1px solid #808080;display:flex;gap:2px;padding:2px 4px;flex-wrap:wrap}
+.menu span{padding:3px 6px;cursor:pointer}.menu span:hover{background:#000080;color:white}
+.toolbar{background:#c0c0c0;border-bottom:1px solid #808080;padding:3px;display:flex;gap:2px;flex-wrap:wrap;align-items:center}
+.toolbar .group{display:flex;gap:1px;border:1px inset #fff;padding:2px;background:#c0c0c0}
+.toolbar button{width:26px;height:24px;border:1px outset #fff;background:#c0c0c0;cursor:pointer;font-size:12px;display:grid;place-items:center}
+.toolbar button:active{border:1px inset #000}
+.toolbar select,.toolbar input{height:22px;border:1px inset #fff;background:white;font-size:11px;padding:0 2px}
+.ruler{background:white;border-bottom:1px solid #808080;height:20px;position:relative;display:flex;align-items:end;padding-left:40px}
+.ruler .tick{border-left:1px solid #aaa;height:8px;margin-right:9px;font-size:8px;color:#666}
+.ruler .tab-marker{position:absolute;top:2px;width:10px;height:12px;background:#000080;clip-path:polygon(50% 100%,0 0,100% 0);cursor:ew-resize}
+.workspace{flex:1;background:#808080;display:flex;overflow:auto;padding:12px;gap:12px}
+.page{width:800px;min-height:1056px;background:white;margin:auto;box-shadow:2px 2px 10px #000;position:relative;padding:0;display:flex;flex-direction:column}
+.page-margins{padding:72px 72px 72px 90px;flex:1;outline:none;white-space:pre-wrap;word-break:break-word;font-family:'Times New Roman',serif;font-size:12pt;color:black;line-height:1.3;overflow:auto}
+.page-margins:empty:before{content:"Escribe aquí tu documento... Usa TAB para tabulaciones, inserta imágenes, tablas y gráficos.";color:#999}
+.statusbar{background:#c0c0c0;border-top:2px outset #fff;padding:2px 6px;display:flex;justify-content:space-between;font-size:10px}
+.dialog{display:none;position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#c0c0c0;border:2px outset #fff;z-index:99;width:380px;box-shadow:4px 4px 0 #000}
+.dialog.show{display:block}
+.dialog-title{background:#000080;color:white;padding:3px 6px;display:flex;justify-content:space-between;font-weight:700}
+.dialog-body{padding:12px;display:flex;flex-direction:column;gap:8px}
+.dialog-body input,.dialog-body select{border:1px inset #fff;padding:4px;background:white}
+.dialog-actions{display:flex;justify-content:end;gap:6px;margin-top:8px}
+.dialog-actions button{padding:4px 12px;border:1px outset #fff;background:#c0c0c0;cursor:pointer}
+.chart-box{border:1px solid #000;background:white;padding:4px;margin:8px 0;resize:both;overflow:auto;display:inline-block;min-width:320px}
+.table-grid{display:grid;gap:1px;background:#000;border:1px solid #000;margin:8px 0}
+.table-grid div{background:white;padding:4px;min-width:80px;min-height:20px;outline:none}
+input[type=color]{width:30px;height:22px;padding:0;border:1px inset #fff;cursor:pointer}
+.separator{width:1px;height:18px;background:#808080;margin:0 3px}
+</style>
+</head>
+<body>
+<div class="window">
+<div class="titlebar"><span><i class="fa-solid fa-file-word"></i> Space Net 2000</span><div class="buttons"><div>_</div><div>□</div><div onclick="if(confirm('¿Cerrar Word 2000?'))location.reload()">X</div></div></div>
+
+<div class="menu">
+<span onclick="newDoc()"><u>A</u>rchivo</span><span><u>E</u>dición</span><span><u>V</u>er</span><span><u>I</u>nsertar</span><span>Forma<u>t</u>o</span><span><u>H</u>erramientas</span><span>Ta<u>b</u>la</span><span><u>V</u>entana</span><span>A<u>y</u>uda</span>
+<a href="https://spaceparaoficina.blogspot.com/2026/10/grafico.html">Gráfico</a>
+</div>
+
+<div class="toolbar" id="toolbar">
+<div class="group">
+<button onclick="exec('new')" title="Nuevo"><i class="fa-solid fa-file"></i></button>
+<button onclick="openDoc()" title="Abrir"><i class="fa-solid fa-folder-open"></i></button>
+<button onclick="saveDoc()" title="Guardar"><i class="fa-solid fa-floppy-disk"></i></button>
+</div>
+<div class="group">
+<select id="fontFamily" onchange="setFont(this.value)" title="Fuente"><option>Times New Roman</option><option>Arial</option><option>Courier New</option><option>Verdana</option><option>Impact</option><option>Comic Sans MS</option></select>
+<select id="fontSize" onchange="setSize(this.value)" title="Tamaño de fuente"><option value="10">10</option><option value="12" selected>12</option><option value="14">14</option><option value="16">16</option><option value="18">18</option><option value="24">24</option><option value="36">36</option><option value="48">48</option><option value="72">72</option></select>
+</div>
+<div class="group">
+<button onclick="format('bold')" id="bBold" title="Negrita"><i class="fa-solid fa-bold"></i></button>
+<button onclick="format('italic')" id="bItalic" title="Cursiva"><i class="fa-solid fa-italic"></i></button>
+<button onclick="format('underline')" id="bUnder" title="Subrayado"><i class="fa-solid fa-underline"></i></button>
+<button onclick="format('strikeThrough')" title="Tachado"><i class="fa-solid fa-strikethrough"></i></button>
+</div>
+<div class="group">
+<input type="color" id="colorText" value="#000000" title="Color texto" onchange="setColor(this.value)">
+<input type="color" id="colorBg" value="#ffff00" title="Resaltar" onchange="setBg(this.value)">
+<button onclick="setBg('transparent')" title="Sin color de resaltado"><i class="fa-solid fa-eraser"></i></button>
+</div>
+<div class="group">
+<button onclick="format('justifyLeft')" title="Alinear a la izquierda"><i class="fa-solid fa-align-left"></i></button>
+<button onclick="format('justifyCenter')" title="Centrar"><i class="fa-solid fa-align-center"></i></button>
+<button onclick="format('justifyRight')" title="Alinear a la derecha"><i class="fa-solid fa-align-right"></i></button>
+<button onclick="format('justifyFull')" title="Justificar"><i class="fa-solid fa-align-justify"></i></button>
+</div>
+<div class="group">
+<button onclick="insertTab()" title="Tabulación"><i class="fa-solid fa-arrow-right"></i> TAB</button>
+<button onclick="format('insertUnorderedList')" title="Lista con viñetas"><i class="fa-solid fa-list-ul"></i></button>
+<button onclick="format('insertOrderedList')" title="Lista numerada"><i class="fa-solid fa-list-ol"></i></button>
+<button onclick="format('outdent')" title="Disminuir sangría"><i class="fa-solid fa-outdent"></i></button>
+<button onclick="format('indent')" title="Aumentar sangría"><i class="fa-solid fa-indent"></i></button>
+</div>
+<div class="group">
+<button onclick="showDialog('imgDialog')" title="Insertar imagen"><i class="fa-solid fa-image"></i></button>
+<button onclick="insertTable()" title="Insertar tabla"><i class="fa-solid fa-table"></i></button>
+<button onclick="insertChart()" title="Gráfico de barras"><i class="fa-solid fa-chart-column"></i></button>
+<button onclick="insertTextBox()" title="Cuadro de texto"><i class="fa-regular fa-square"></i></button>
+<button onclick="insertLine()" title="Línea horizontal"><i class="fa-solid fa-minus"></i></button>
+</div>
+</div>
+
+<div class="ruler" id="ruler">
+<div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+<div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div><div class="tick"></div>
+<div class="tab-marker" style="left:100px" id="tab1"></div>
+</div>
+
+<div class="workspace">
+<div class="page"><div class="page-margins" id="editor" contenteditable="true" spellcheck="false"></div></div>
+</div>
+
+<div class="statusbar">
+<span id="status">Página 1 | Sec 1 | 1/1 | En 2,5 cm | Lín 1 | Col 1 | GRAB | EST | MAYÚSCULAS | NUM</span>
+<span><span id="words">0 palabras</span> | <span id="zoom">100%</span> <input type="range" min="50" max="200" value="100" style="width:60px;vertical-align:middle" oninput="document.getElementById('editor').style.zoom=this.value+'%';document.getElementById('zoom').textContent=this.value+'%'"></span>
+</div>
+</div>
+
+<!-- DIALOG IMAGEN -->
+<div class="dialog" id="imgDialog">
+<div class="dialog-title"><span>Insertar imagen</span><span onclick="hideDialog('imgDialog')" style="cursor:pointer">X</span></div>
+<div class="dialog-body">
+<label>URL o archivo local:</label>
+<input type="text" id="imgUrl" placeholder="https://...">
+<input type="file" id="imgFile" accept="image/*">
+<label>Tamaño:</label>
+<select id="imgSize"><option value="100">Pequeña 100px</option><option value="200" selected>Mediana 200px</option><option value="400">Grande 400px</option><option value="100%">Ancho completo</option></select>
+<div class="dialog-actions"><button onclick="hideDialog('imgDialog')">Cancelar</button><button onclick="doInsertImage()" style="font-weight:700">Insertar</button></div>
+</div>
+</div>
+
+<!-- DIALOG TABLA -->
+<div class="dialog" id="tableDialog">
+<div class="dialog-title"><span>Insertar tabla</span><span onclick="hideDialog('tableDialog')" style="cursor:pointer">X</span></div>
+<div class="dialog-body">
+<div style="display:flex;gap:10px"><label>Filas: <input type="number" id="rows" value="3" min="1" max="20" style="width:50px"></label><label>Columnas: <input type="number" id="cols" value="3" min="1" max="10" style="width:50px"></label></div>
+<div class="dialog-actions"><button onclick="hideDialog('tableDialog')">Cancelar</button><button onclick="doInsertTable()" style="font-weight:700">Insertar</button></div>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const editor = document.getElementById('editor');
+const ruler = document.getElementById('ruler');
+const tabMarker = document.getElementById('tab1');
+
+// --- Funciones de Documento ---
+function newDoc() {
+    if (confirm('¿Nuevo documento? Se perderá lo actual y no se guardará.')) {
+        editor.innerHTML = '';
+        updateStatus();
+        editor.focus();
+    }
+}
+
+function saveDoc() {
+    const htmlContent = `<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documento Guardado</title>
+    <style>
+        /* Estilos esenciales para una correcta visualización */
+        body { font-family: 'Times New Roman', serif; font-size: 12pt; line-height: 1.3; margin: 0; padding: 0; }
+        .page-margins { padding: 72px 72px 72px 90px; box-sizing: border-box; }
+        img { max-width: 100%; height: auto; } /* Asegurar que las imágenes no se desborden */
+        table { border-collapse: collapse; width: 100%; }
+        td, th { border: 1px solid black; padding: 4px; }
+        hr { border: none; border-top: 1px solid black; margin: 16px 0; }
+        .chart-box { border: 1px solid black; padding: 4px; margin: 8px 0; }
+        canvas { display: block; } /* Evitar espacio extra debajo del canvas */
+    </style>
+</head>
+<body>
+    <div class="page-margins">${editor.innerHTML}</div>
+</body>
+</html>`;
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'documento_word2000.html';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+function openDoc() {
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'text/html,application/xhtml+xml';
+    fileInput.onchange = function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const content = event.target.result;
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(content, "text/html");
+            const pageMarginsDiv = doc.querySelector('.page-margins');
+            if (pageMarginsDiv) {
+                editor.innerHTML = pageMarginsDiv.innerHTML;
+            } else {
+                const bodyContent = doc.body.innerHTML;
+                if (bodyContent) {
+                    editor.innerHTML = bodyContent;
+                } else {
+                    alert("No se pudo leer el contenido del archivo HTML.");
+                }
+            }
+            updateStatus();
+            editor.focus();
+        };
+        reader.readAsText(file);
+    };
+    fileInput.click();
+}
+
+// --- Funciones de Formato ---
+function format(cmd, value = null) {
+    document.execCommand(cmd, false, value);
+    editor.focus();
+    updateToolbarState();
+}
+
+function setFont(fontName) {
+    format('fontName', fontName);
+}
+
+function setSize(size) {
+    // execCommand('fontSize' con un valor numérico del 1 al 7. 7 es el más grande.
+    // Para tamaños personalizados, usamos estilos.
+    document.execCommand('fontSize', false, '7'); // Aplicar el tamaño 7 temporalmente
+    const fonts = editor.getElementsByTagName('font');
+    for (let i = 0; i < fonts.length; i++) {
+        if (fonts[i].size === '7') {
+            fonts[i].removeAttribute('size');
+            fonts[i].style.fontSize = size + 'pt';
+        }
+    }
+    editor.focus();
+}
+
+function setColor(color) {
+    format('foreColor', color);
+}
+
+function setBg(color) {
+    format('hiliteColor', color);
+}
+
+function insertTab() {
+    const tabHtml = `<span style="display:inline-block; width:48px; margin-left:24px;">\u00A0</span>`; // Simula una tabulación
+    format('insertHTML', tabHtml);
+}
+
+// --- Funciones de Insertar ---
+function showDialog(id) {
+    document.getElementById(id).classList.add('show');
+    editor.blur();
+}
+
+function hideDialog(id) {
+    document.getElementById(id).classList.remove('show');
+    editor.focus();
+}
+
+function doInsertImage() {
+    const url = document.getElementById('imgUrl').value.trim();
+    const size = document.getElementById('imgSize').value;
+    const fileInput = document.getElementById('imgFile');
+    const file = fileInput.files[0];
+
+    let src = '';
+
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            src = e.target.result;
+            createImageElement(src, size);
+        };
+        reader.readAsDataURL(file);
+    } else if (url) {
+        src = url;
+        createImageElement(src, size);
+    } else {
+        alert("Por favor, introduce una URL o selecciona un archivo de imagen.");
+        return;
+    }
+
+    fileInput.value = '';
+    document.getElementById('imgUrl').value = '';
+    hideDialog('imgDialog');
+}
+
+function createImageElement(src, size) {
+    let widthStyle = '';
+    if (size === '100%') {
+        widthStyle = 'width: 100%; height: auto;';
+    } else {
+        widthStyle = `width: ${size}px; height: auto;`;
+    }
+    // Hacer las imágenes editables y arrastrables
+    const imgHtml = `<img src="${src}" alt="Imagen insertada" style="${widthStyle} border: 1px solid #000; margin: 4px; vertical-align: middle;" contenteditable="false" draggable="true">`;
+    format('insertHTML', imgHtml);
+}
+
+function insertTable() {
+    showDialog('tableDialog');
+}
+
+function doInsertTable() {
+    const rows = parseInt(document.getElementById('rows').value);
+    const cols = parseInt(document.getElementById('cols').value);
+
+    if (isNaN(rows) || isNaN(cols) || rows < 1 || cols < 1) {
+        alert("Por favor, introduce un número válido de filas y columnas.");
+        return;
+    }
+
+    // Estilo para simular la tabla de Word 2000
+    let tableHtml = `<table style="border-collapse: collapse; margin: 8px 0; width: 100%; border: 1px solid #000;"><tbody>`;
+    for (let i = 0; i < rows; i++) {
+        tableHtml += '<tr>';
+        for (let j = 0; j < cols; j++) {
+            // Las celdas deben ser editables
+            tableHtml += `<td style="border: 1px solid #000; min-width: 60px; min-height: 20px; outline: none;" contenteditable="true">Celda ${i + 1},${j + 1}</td>`;
+        }
+        tableHtml += '</tr>';
+    }
+    tableHtml += '</tbody></table><br>';
+
+    format('insertHTML', tableHtml);
+    hideDialog('tableDialog');
+}
+
+function insertChart() {
+    const id = 'chart_' + Date.now();
+    const chartHtml = `
+        <div class="chart-box" contenteditable="false">
+            <div style="font-size:10px;background:#c0c0c0;padding:2px;border-bottom:1px solid #000;display:flex;justify-content:space-between;align-items:center;">
+                <span><i class="fa-solid fa-chart-column"></i> Gráfico de Barras</span>
+                <span onclick="this.closest('.chart-box').remove()" style="cursor:pointer;background:#c0c0c0;border:1px outset #fff;padding:0 4px">X</span>
+            </div>
+            <canvas id="${id}"></canvas>
+            <div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
+                <label for="data_${id}" style="font-size:10px;">Datos (coma):</label>
+                <input type="text" id="data_${id}" value="10,25,15,30,20" style="width:140px;font-size:10px" placeholder="Ej: 10,20,30">
+                <label for="color_${id}" style="font-size:10px;">Color:</label>
+                <input type="color" id="color_${id}" value="#000080" onchange="updateChart('${id}')" style="width:30px;height:18px;padding:0;">
+                <button onclick="updateChart('${id}')" style="font-size:10px;padding:2px 6px;border:1px outset #fff">Actualizar</button>
+            </div>
+        </div><br>`;
+    format('insertHTML', chartHtml);
+    setTimeout(() => {
+        const dataInput = document.getElementById(`data_${id}`);
+        const colorInput = document.getElementById(`color_${id}`);
+        if (dataInput && colorInput) {
+            const data = dataInput.value.split(',').map(v => parseFloat(v.trim()) || 0).filter(v => !isNaN(v));
+            const color = colorInput.value;
+            createChart(id, data, color);
+        }
+    }, 100);
+}
+
+function createChart(id, data, color) {
+    const ctx = document.getElementById(id);
+    if (!ctx) return;
+
+    if (window.myCharts && window.myCharts[id]) {
+        window.myCharts[id].destroy();
+    }
+
+    window.myCharts = window.myCharts || {};
+    window.myCharts[id] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.map((_, i) => `Ítem ${i + 1}`),
+            datasets: [{
+                label: 'Valor',
+                data: data,
+                backgroundColor: color,
+                borderColor: '#000',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true, // Permitir que Chart.js gestione el tamaño dentro de su contenedor
+            maintainAspectRatio: false, // Esencial con responsive: true
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+}
+
+function updateChart(id) {
+    const dataInput = document.getElementById(`data_${id}`);
+    const colorInput = document.getElementById(`color_${id}`);
+    if (!dataInput || !colorInput) return;
+
+    const data = dataInput.value.split(',').map(v => parseFloat(v.trim()) || 0).filter(v => !isNaN(v));
+    const color = colorInput.value;
+
+    if (window.myCharts && window.myCharts[id]) {
+        window.myCharts[id].data.datasets[0].data = data;
+        window.myCharts[id].data.datasets[0].backgroundColor = color;
+        window.myCharts[id].data.labels = data.map((_, i) => `Ítem ${i + 1}`);
+        window.myCharts[id].update();
+    } else {
+        createChart(id, data, color);
+    }
+}
+
+function insertTextBox() {
+    const textBoxHtml = `
+        <div style="border: 1px solid #000; padding: 8px; margin: 8px 0; min-height: 50px; background: #ffffcc; display: inline-block; min-width: 200px; resize: both; overflow: auto;" contenteditable="true">
+            <b>Cuadro de texto</b><br>Escribe aquí...
+        </div><br>`;
+    format('insertHTML', textBoxHtml);
+}
+
+function insertLine() {
+    format('insertHTML', '<hr style="border: none; border-top: 1px solid #000; margin: 16px 0;"><br>');
+}
+
+// --- Actualización de Estado ---
+function updateStatus() {
+    const text = editor.innerText || "";
+    const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+    const charCount = text.length;
+    document.getElementById('words').textContent = `${wordCount} palabras, ${charCount} caracteres`;
+
+    const page = 1; // Simulación
+    const section = 1; // Simulación
+    const pageTotal = 1; // Simulación
+    const lines = text.split('\n').length;
+    const cols = text.length > 0 ? (text.length % 80) + 1 : 1; // Simulación simple
+
+    document.getElementById('status').textContent = `Página ${page} | Sec ${section} | ${page}/${pageTotal} | En 2,5 cm | Lín ${lines} | Col ${cols} | GRAB | EST | MAYÚSCULAS | NUM`;
+}
+
+// --- Event Listeners ---
+editor.addEventListener('input', updateStatus);
+editor.addEventListener('focus', updateToolbarState);
+editor.addEventListener('blur', updateToolbarState);
+
+editor.addEventListener('keydown', e => {
+    if (e.key === 'Tab') {
+        e.preventDefault();
+        insertTab();
+        updateStatus();
+    }
+});
+
+// Drag and drop para el marcador de tabulación
+let isDraggingTab = false;
+let initialMouseX;
+let initialTabLeft;
+
+tabMarker.addEventListener('mousedown', (e) => {
+    isDraggingTab = true;
+    initialMouseX = e.clientX;
+    initialTabLeft = parseInt(tabMarker.style.left, 10);
+    tabMarker.style.cursor = 'grabbing';
+    document.body.style.cursor = 'grabbing';
+    e.preventDefault();
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (!isDraggingTab) return;
+
+    const deltaX = e.clientX - initialMouseX;
+    let newLeft = initialTabLeft + deltaX;
+
+    const rulerRect = ruler.getBoundingClientRect();
+    const minLeft = 0;
+    const maxLeft = ruler.offsetWidth - tabMarker.offsetWidth - 10;
+
+    newLeft = Math.max(minLeft, Math.min(newLeft, maxLeft));
+
+    tabMarker.style.left = newLeft + 'px';
+});
+
+window.addEventListener('mouseup', () => {
+    if (isDraggingTab) {
+        isDraggingTab = false;
+        tabMarker.style.cursor = 'ew-resize';
+        document.body.style.cursor = '';
+    }
+});
+
+// --- Inicialización ---
+document.addEventListener('DOMContentLoaded', () => {
+    editor.style.zoom = '100%';
+    document.getElementById('zoom').textContent = '100%';
+    updateStatus();
+    editor.focus();
+
+    // Asignar acciones a los elementos del menú (ejemplo básico)
+    document.querySelector('.menu > span:nth-child(1)').onclick = newDoc;
+    document.querySelector('.menu > span:nth-child(2)').onclick = function() { alert('Funcionalidad de Edición no implementada'); };
+    document.querySelector('.menu > span:nth-child(3)').onclick = function() { alert('Funcionalidad de Ver no implementada'); };
+    document.querySelector('.menu > span:nth-child(4)').onclick = function() { alert('Funcionalidad de Insertar no implementada'); };
+    document.querySelector('.menu > span:nth-child(5)').onclick = function() { alert('Funcionalidad de Formato no implementada'); };
+    document.querySelector('.menu > span:nth-child(6)').onclick = function() { alert('Funcionalidad de Herramientas no implementada'); };
+    document.querySelector('.menu > span:nth-child(7)').onclick = function() { alert('Funcionalidad de Tabla no implementada'); };
+    document.querySelector('.menu > span:nth-child(8)').onclick = function() { alert('Funcionalidad de Ventana no implementada'); };
+    document.querySelector('.menu > span:nth-child(9)').onclick = function() { alert('Funcionalidad de Ayuda no implementada'); };
+
+    // Configurar los botones de guardar y abrir para usar las nuevas funciones
+    document.querySelector('#toolbar .group:nth-child(1) button:nth-child(2)').onclick = openDoc; // Abrir
+    document.querySelector('#toolbar .group:nth-child(1) button:nth-child(3)').onclick = saveDoc; // Guardar
+
+    updateToolbarState();
+});
+
+// Función para actualizar el estado de los botones de formato (negrita, cursiva, etc.)
+function updateToolbarState() {
+    const buttons = {
+        bold: document.getElementById('bBold'),
+        italic: document.getElementById('bItalic'),
+        underline: document.getElementById('bUnder')
+    };
+
+    for (const cmd in buttons) {
+        if (buttons[cmd]) {
+            if (document.queryCommandState(cmd)) {
+                buttons[cmd].style.border = '1px inset #000'; // Estilo para botón presionado
+            } else {
+                buttons[cmd].style.border = '1px outset #fff'; // Estilo normal
+            }
+        }
+    }
+}
+
+updateStatus();
+</script>
+</body>
+</html>
